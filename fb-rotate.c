@@ -24,10 +24,11 @@ usage(void)
     fprintf(stderr, "usage: %s -l\n"
                     "       %s -i\n"
                     "       %s -d <display ID> -m\n"
-                    "       %s -d <display ID> -r <0|90|180|270>\n"
+                    "       %s -d <display ID> -r <0|90|180|270|1>\n"
 	            "\n"
 	            "-d 0 can be used for the <display ID> of the main monitor\n"
-	            "-d 1 can be used for the <display ID> of the first non-internal monitor\n",
+	            "-d 1 can be used for the <display ID> of the first non-internal monitor\n"
+	            "-r 1 signfies 90 if currently not rotated; otherwise 0 (i.e. toggle)\n",
                     PROGNAME, PROGNAME, PROGNAME, PROGNAME);
     exit(1);
 }
@@ -225,6 +226,7 @@ main(int argc, char **argv)
 {
     int  i;
     long angle = 0;
+    long currentRotation = 0;
    
     io_service_t      service;
     CGDisplayErr      dErr;
@@ -264,6 +266,15 @@ main(int argc, char **argv)
    
     if (targetDisplay == 0)
         usage();
+
+    if (angle == 1) {
+        currentRotation = CGDisplayRotation (targetDisplay);
+        if (currentRotation == 0) {
+	  angle = 90;
+	} else {
+          angle = 0;
+	}
+    }
    
     options = angle2options(angle);
    
